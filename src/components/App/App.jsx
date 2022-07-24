@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Container } from './App.styled';
 
@@ -8,36 +8,25 @@ import ContactList from '../ContactsList/ContactsList';
 
 import Notiflix from 'notiflix';
 
-export class App extends Component {
-  state = {
-    contacts: [
-      // { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      // { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      // { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      // { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
-    filter: '',
-  };
+export const App = () => {
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
 
-  componentDidMount() {
+  useEffect(() => {
     const contaktsFromStorage = localStorage.getItem('contakts-key');
     const parthContaktsFromStorage = JSON.parse(contaktsFromStorage);
 
     if (parthContaktsFromStorage && parthContaktsFromStorage.length > 0) {
-      this.setState({ contacts: parthContaktsFromStorage });
+      setContacts(parthContaktsFromStorage);
     }
-  }
+  }, []);
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.contacts.length !== prevState.contacts.length) {
-      localStorage.setItem('contakts-key', JSON.stringify(this.state.contacts));
-    }
-  }
+  useEffect(() => {
+    localStorage.setItem('contakts-key', JSON.stringify(contacts));
+  });
 
-  addDateForm = contact => {
-    const incontacts = this.state.contacts.find(
-      item => item.name === contact.name
-    );
+  const addDateForm = contact => {
+    const incontacts = contacts.find(item => item.name === contact.name);
     if (incontacts) {
       Notiflix.Report.warning(
         'Warning',
@@ -47,65 +36,53 @@ export class App extends Component {
           // callback
         }
       );
-      //alert(`${contact.name} is alredy incontacts`);
       return;
     }
     Notiflix.Report.success('Success', 'Contact added', 'Ok', function cb() {
       // callback
     });
-
-    this.setState(prevState => ({
-      contacts: [...prevState.contacts, contact],
-    }));
+    setContacts(prevState => {
+      return [...prevState, contact];
+    });
   };
 
-  handleChangeFilter = event => {
-    this.setState({ filter: event.target.value });
+  const handleChangeFilter = event => {
+    setFilter(event.target.value);
   };
 
-  handleVisiblyContacts = () => {
-    const normalizeFilter = this.state.filter.trim().toLowerCase();
-    const visiblyContacts = this.state.contacts.filter(contact =>
+  const handleVisiblyContacts = () => {
+    const normalizeFilter = filter.trim().toLowerCase();
+    const visiblyContacts = contacts.filter(contact =>
       contact.name.toLowerCase().includes(normalizeFilter)
     );
     return visiblyContacts;
   };
 
-  hendleDeleteContact = event => {
-    this.setState({
-      contacts: this.state.contacts.filter(item => item.id !== event.target.id),
-    });
+  const hendleDeleteContact = event => {
+    setContacts(contacts.filter(item => item.id !== event.target.id));
+
     Notiflix.Report.success('Success', 'Contact deleted', 'Ok', function cb() {
       // callback
     });
   };
 
-  render() {
-    const contacts = this.state.contacts;
-    const filter = this.state.filter;
+  return (
+    <Container>
+      <h2>Phonebook</h2>
+      <NewContactForm onSubmit={addDateForm} />
 
-    const handleVisiblyContacts = this.handleVisiblyContacts;
-    const handleChangeFilter = this.handleChangeFilter;
-    const hendleDeleteContact = this.hendleDeleteContact;
-
-    return (
-      <Container>
-        <h2>Phonebook</h2>
-        <NewContactForm onSubmit={this.addDateForm} />
-
-        <h2>Contacts</h2>
-        {contacts.length ? (
-          <>
-            <Filter onChangeFilter={handleChangeFilter} value={filter} />
-            <ContactList
-              dates={handleVisiblyContacts()}
-              onDeleteContact={hendleDeleteContact}
-            />
-          </>
-        ) : (
-          <p>You have no contacts</p>
-        )}
-      </Container>
-    );
-  }
-}
+      <h2>Contacts</h2>
+      {contacts.length ? (
+        <>
+          <Filter onChangeFilter={handleChangeFilter} value={filter} />
+          <ContactList
+            dates={handleVisiblyContacts()}
+            onDeleteContact={hendleDeleteContact}
+          />
+        </>
+      ) : (
+        <p>You have no contacts</p>
+      )}
+    </Container>
+  );
+};
