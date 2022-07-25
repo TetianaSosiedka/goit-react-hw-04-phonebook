@@ -23,7 +23,7 @@ export const App = () => {
 
   useEffect(() => {
     localStorage.setItem('contakts-key', JSON.stringify(contacts));
-  });
+  }, [contacts]);
 
   const addDateForm = contact => {
     const incontacts = contacts.find(item => item.name === contact.name);
