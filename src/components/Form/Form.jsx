@@ -1,30 +1,22 @@
-import { useState } from 'react';
+import PropTypes from 'prop-types';
+
 import { nanoid } from 'nanoid';
 
 import { Form } from './Filter.styled';
 
+import useGetContact from '../../hooks/useGetContact';
+
 import Button from '@mui/material/Button';
+//-----------------------------------------------------
 
 const NewContactForm = ({ onSubmit }) => {
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
+  const { name, number, setState } = useGetContact();
 
   const idInputName = nanoid();
   const idInputNumber = nanoid();
 
   const handeInputChange = event => {
-    switch (event.target.name) {
-      case 'name':
-        setName(event.target.value);
-        break;
-
-      case 'number':
-        setNumber(event.target.value);
-        break;
-
-      default:
-        break;
-    }
+    setState(event.target.name, event.target.value);
   };
 
   const handleSubmit = event => {
@@ -33,8 +25,7 @@ const NewContactForm = ({ onSubmit }) => {
     const id = nanoid();
     onSubmit({ name, number, id });
 
-    setName('');
-    setNumber('');
+    setState();
   };
 
   return (
@@ -72,6 +63,10 @@ const NewContactForm = ({ onSubmit }) => {
       </Button>
     </Form>
   );
+};
+
+NewContactForm.prototype = {
+  onSubmit: PropTypes.func.isRequired,
 };
 
 export default NewContactForm;

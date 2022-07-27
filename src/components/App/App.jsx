@@ -9,17 +9,10 @@ import ContactList from '../ContactsList/ContactsList';
 import Notiflix from 'notiflix';
 
 export const App = () => {
-  const [contacts, setContacts] = useState([]);
+  const [contacts, setContacts] = useState(() => {
+    return JSON.parse(localStorage.getItem('contakts-key')) ?? [];
+  });
   const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    const contaktsFromStorage = localStorage.getItem('contakts-key');
-    const parthContaktsFromStorage = JSON.parse(contaktsFromStorage);
-
-    if (parthContaktsFromStorage && parthContaktsFromStorage.length > 0) {
-      setContacts(parthContaktsFromStorage);
-    }
-  }, []);
 
   useEffect(() => {
     localStorage.setItem('contakts-key', JSON.stringify(contacts));
